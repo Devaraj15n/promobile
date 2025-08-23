@@ -10,9 +10,7 @@ const customersRouter = require('./routes/customers');
 const userRouter = require('./routes/users');
 const router = express.Router();
 const PORT = process.env.PORT || 5000;
-app.get("/", (req, res) => {
-  res.send("🚀 Render backend is working!");
-});
+
 
 const app = express();
 app.use(cors());
