@@ -9,7 +9,10 @@ const deviceTypesRouter = require('./routes/deviceTypes');
 const customersRouter = require('./routes/customers');
 const userRouter = require('./routes/users');
 const router = express.Router();
-
+const PORT = process.env.PORT || 5000;
+app.get("/", (req, res) => {
+  res.send("🚀 Render backend is working!");
+});
 
 const app = express();
 app.use(cors());
@@ -38,4 +41,4 @@ sequelize.sync().then(() => console.log("✅ Database synced"));
 const server = http.createServer(app);
 init(server); // 👈 initialize socket.io here
 
-server.listen(5000, () => console.log("🚀 Server running on 5000"));
+server.listen(PORT, () => console.log(`🚀 Server running on ${PORT}`));
