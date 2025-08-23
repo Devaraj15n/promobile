@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* body{
+  background-color: #fff;
+} */
+
+body {
+  @apply text-primaryText; /* Tailwind apply */
+}
+
+.login-parent-div {
+  overflow: hidden;
+  height: 100vh;
+}
+
+
+.login-input-field {
+  @apply mt-1 w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500;
+  background-color: #F2F4F7;
+  height: 55px;
+}
+
+.login-input-field::placeholder {
+  font-size: 14px;
+}
+
+.sign-in-login-btn {
+  background-color: #162D3A;
+  height: 50px;
+}
+
+
+.custom-table-header {
+  background-color: #163057;
+  padding: 20px 36px;
+  /* border-radius: 10px; */
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.custom-table-header h3 {
+  font-size: 20px;
+}
+
+.custom-table-header .invoice-number {
+  font-size: 14px;
+}
+
+.custom-table-header-div {
+  border: 1px solid #AEAEAE;
+}
+
+.custom-table-header-icon {
+  border: 1px solid #FFFFFF;
+  border-radius: 4px;
+  padding: 6px;
+  cursor: pointer;
+
+}
+
+.custom-table-body {
+  color: #8B8B8B;
+  padding: 30px;
+  /* display: flex; */
+  width: 100%;
+  justify-content: space-between;
+}
+
+.custom-table-body div {
+  font-size: 16px;
+}
+
+.custom-table-body div span {
+  font-size: 16px;
+  color: #233867;
+  font-weight: 700;
+  display: block;
+  padding: 8px 0px 0px;
+}
+
+.sidebar-main-div h3 {
+  font-size: 16px;
+  color: #163057;
+  font-weight: 700;
+
+}
+
+.sidebar-main-div .device-type label {
+  font-size: 14px;
+}
+
+.sidebar-main-div .device-type label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+.customer-form label{
+  @apply text-sm font-medium text-gray-700 mb-2;
+}
+
+.customer-form input{
+  @apply border rounded p-2 bg-[#F8F8F8] focus:bg-white focus:outline-none focus:border-blue-500;
+}
+.customer-form select{
+  @apply border rounded p-2 bg-[#F8F8F8] focus:bg-white focus:outline-none focus:border-blue-500;
+}
+
+.register-form input{
+  @apply border rounded p-2 bg-[#F8F8F8] focus:bg-white focus:outline-none focus:border-blue-500;
+}
+.register-form select{
+  @apply border rounded p-2 bg-[#F8F8F8] focus:bg-white focus:outline-none focus:border-blue-500;
+}
