@@ -9,5 +9,4 @@ backend/dist
 # Logs
 *.log
 
-# Env files
-frontend/.env
+
