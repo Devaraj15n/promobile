@@ -14,6 +14,7 @@ import { AuthContext } from "../context/AuthContext";
 
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+console.log(BACKEND_URL);
 const socket = io(BACKEND_URL, {
     transports: ["websocket"],
 });
