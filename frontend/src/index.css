@@ -113,3 +113,9 @@ body {
 .register-form select{
   @apply border rounded p-2 bg-[#F8F8F8] focus:bg-white focus:outline-none focus:border-blue-500;
 }
+
+.nocopy {
+  user-select: none;   /* Prevent text selection */
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}

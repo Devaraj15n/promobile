@@ -75,8 +75,12 @@ export default function CustomerCard({
       </div>
 
       {/* Body */}
-      <div className="custom-table-body grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 md:gap-4 text-sm">
-        <div className="break-words">Phone Number: <span>{phone}</span></div>
+      <div
+        className={`custom-table-body grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 md:gap-4 text-sm ${user.user_type !== 1 ? "nocopy" : ""
+          }`}
+        onContextMenu={user.user_type !== 1 ? (e) => e.preventDefault() : undefined}
+      >        
+      <div className="break-words">Phone Number: <span>{phone}</span></div>
         <div className="break-words">Device Type: <span>{device}</span></div>
         <div className="break-words">Warranty: <span className="text-green-400">{warranty}</span></div>
         <div className="break-words">Model: <span>{model}</span></div>
