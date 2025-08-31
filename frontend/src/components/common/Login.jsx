@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import loginImage from "../../assets/login.svg";
+import loginImage from "../../assets/Login.jpg";
 import { FaUser } from "react-icons/fa";
 import { RiLockPasswordFill } from "react-icons/ri";
 import axios from "axios";

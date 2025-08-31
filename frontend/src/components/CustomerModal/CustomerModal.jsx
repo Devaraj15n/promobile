@@ -7,6 +7,8 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function CustomerModal({ isOpen, onClose, onCustomerSaved, customer }) {
   const { user } = useContext(AuthContext);
+  const today = new Date().toISOString().split("T")[0];
+
   const emptyForm = {
     customer_name: "",
     phone_number: "",
@@ -14,7 +16,7 @@ export default function CustomerModal({ isOpen, onClose, onCustomerSaved, custom
     warranty: "",
     model: "",
     repair_type: "",
-    received_date: "",
+    received_date: today,
     delivery_date: "",
     cost: "",
     advance: "",
@@ -36,7 +38,7 @@ export default function CustomerModal({ isOpen, onClose, onCustomerSaved, custom
     warranty: "",
     model: "",
     repair_type: "",
-    received_date: "",
+    received_date: today,
     delivery_date: "",
     cost: "",
     advance: "",
@@ -228,6 +230,8 @@ export default function CustomerModal({ isOpen, onClose, onCustomerSaved, custom
                 value={formData.received_date}
                 onChange={handleChange}
                 className="border p-2 rounded"
+                readOnly
+                disabled
               />
             </div>
 

@@ -31,7 +31,8 @@ export default function Dashboard() {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
     const [search, setSearch] = useState("");
-    const [selectedDate, setSelectedDate] = useState({ from: null, to: null });
+    const today = new Date().toISOString().split("T")[0];
+    const [selectedDate, setSelectedDate] = useState({ from: today, to: today });
     const [selectedDevices, setSelectedDevices] = useState([]);
     const [deleteCustomerId, setDeleteCustomerId] = useState(null);
 
@@ -135,14 +136,19 @@ export default function Dashboard() {
     };
 
     const filteredCustomers = customers.filter((c) => {
+        const start = new Date(selectedDate.from);
+        const end = new Date(selectedDate.to);
+        end.setHours(23, 59, 59, 999);
+
         const matchSearch =
             c.customer_name.toLowerCase().includes(search.toLowerCase()) ||
             c.phone_number.includes(search);
 
-        const matchDate = selectedDate.from && selectedDate.to
-            ? new Date(c.received_date) >= new Date(selectedDate.from) &&
-            new Date(c.received_date) <= new Date(selectedDate.to)
-            : true;
+        const matchDate =
+            selectedDate.from && selectedDate.to
+                ? new Date(c.received_date) >= start && new Date(c.received_date) <= end
+                : true;
+
         const matchDevice =
             selectedDevices.length > 0 ? selectedDevices.includes(c.deviceType.name) : true;
 
@@ -295,11 +301,11 @@ export default function Dashboard() {
                             </div>
 
                             <div>
-                                <div style={{ fontSize: '14px',display:'flex',justifyContent:'space-between',marginBottom:'10px' }}>
+                                <div style={{ fontSize: '14px', display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                                     <p className="text-[14px]">Employee Code</p>
                                     <p className="text-[#0897FF] font-bold">{loginRequest.code || "N/A"}</p>
                                 </div>
-                                <div style={{ fontSize: '14px',display:'flex',justifyContent:'space-between',marginBottom:'10px'  }}>
+                                <div style={{ fontSize: '14px', display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                                     <p className="text-[14px]">Employee Name</p>
                                     <p className="text-[#0897FF] font-bold">{loginRequest.user_name}</p>
                                 </div>
