@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaUser } from "react-icons/fa";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-export default function EmployeeModal({ onClose, onSave, onDelete, initialData }) {
+export default function EmployeeModal({ onClose, onSave, onDelete, initialData, nextCode }) {
   const [formData, setFormData] = useState({
     id: null,
     employee_code: "",
@@ -12,7 +12,6 @@ export default function EmployeeModal({ onClose, onSave, onDelete, initialData }
     photoPreview: "", // preview URL
   });
 
-  // Populate modal when editing
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -21,12 +20,13 @@ export default function EmployeeModal({ onClose, onSave, onDelete, initialData }
         user_name: initialData.user_name || "",
         password: "",
         photo: null,
-        photoPreview: initialData.image
-          ? `${BACKEND_URL}${initialData.image}`
-          : "",
+        photoPreview: initialData.image ? `${BACKEND_URL}${initialData.image}` : "",
       });
+    } else {
+      setFormData((prev) => ({ ...prev, employee_code: nextCode || "" })); // <-- use nextCode for new
     }
-  }, [initialData]);
+  }, [initialData, nextCode]);
+  
 
   // Handle file upload & preview
   const handleFileChange = (e) => {

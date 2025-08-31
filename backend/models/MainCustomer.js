@@ -14,6 +14,7 @@ const MainCustomer = sequelize.define(
         received_date: DataTypes.DATEONLY,
         delivery_date: DataTypes.DATEONLY,
         cost: DataTypes.DECIMAL(10, 2),
+        advance: DataTypes.DECIMAL(10, 2),
         invoice_number: DataTypes.STRING(50),
         created_by: DataTypes.INTEGER,
         modified_by: DataTypes.INTEGER,

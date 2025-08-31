@@ -15,6 +15,7 @@ const upload = multer({ storage });
 
 // Routes
 router.get('/', userController.getUsers);
+router.get('/all_users', userController.allUsers);
 router.post('/', upload.single('image'), userController.createUser);
 router.put('/:id', upload.single('image'), userController.updateUser);
 router.delete('/:id', userController.deleteUser);

@@ -119,3 +119,24 @@ body {
   -webkit-user-select: none;
   -ms-user-select: none;
 }
+/* .react-datepicker {
+  width: 200px;      
+  font-size: 12px;   
+}
+
+.react-datepicker__header {
+  padding: 5px;      
+  font-size: 0.8rem; 
+}
+
+.react-datepicker__day {
+  width: 1.5rem;     
+  height: 1.5rem;
+  line-height: 1.5rem;
+  font-size: 0.5rem;
+}
+
+.react-datepicker__day-name {
+  font-size: 0.5rem; 
+} */
+

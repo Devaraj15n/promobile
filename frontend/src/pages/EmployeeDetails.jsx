@@ -5,9 +5,11 @@ import { toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom'
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import { AuthContext } from '../context/AuthContext';
+import { io } from "socket.io-client";
 
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const socket = io(BACKEND_URL, { transports: ["websocket"] });
 
 function EmployeeDetails() {
     const [modalOpen, setModalOpen] = useState(false)
@@ -16,6 +18,94 @@ function EmployeeDetails() {
     const navigate = useNavigate();
     const [deleteEmployeeId, setDeleteEmployeeId] = useState(null)
     const { user } = useContext(AuthContext);
+    const [loginRequest, setLoginRequest] = useState(null);
+    const [nextEmployeeCode, setNextEmployeeCode] = useState("");
+
+
+    const userType = user?.user_type;
+    const currentAdminId = userType === 1 ? user?.id : null;
+
+    useEffect(() => {
+        fetch(`${BACKEND_URL}/api/users/all_users`)
+            .then((res) => res.json())
+            .then((data) => {
+                // setEmployees(data);
+
+                // Calculate next employee code
+                if (data.length > 0) {
+                    // Sort by code to ensure last one is correct
+                    const sorted = data.sort((a, b) => a.employee_code.localeCompare(b.employee_code));
+                    const lastCode = sorted[sorted.length - 1].employee_code; // e.g., "PR0002"
+                    const numberPart = parseInt(lastCode.replace(/\D/g, "")) || 0;
+                    const nextCode = "PR" + String(numberPart + 1).padStart(4, "0"); // PR0003
+                    setNextEmployeeCode(nextCode);
+                } else {
+                    setNextEmployeeCode("PR0001"); // first employee
+                }
+            })
+            .catch((err) => {
+                console.error('Error fetching employees', err);
+                toast.error("Failed to load employees");
+            });
+    }, []);
+
+
+    useEffect(() => {
+        if (currentAdminId) {
+            const handleLoginRequest = (request) => {
+                setLoginRequest(request);
+            };
+            socket.on("login_request", handleLoginRequest);
+            return () => socket.off("login_request", handleLoginRequest);
+        }
+    }, [currentAdminId]);
+
+
+    useEffect(() => {
+        if (user?.id) {
+            socket.emit("register", user.id);
+
+            const handleLoginResponse = ({ approved, token, user: approvedUser }) => {
+                if (approved) {
+                    localStorage.setItem("token", token);
+                    localStorage.setItem("current_user_id", approvedUser.id);
+                    toast.success("Login approved!");
+                } else {
+                    toast.error("Login rejected by super admin");
+                }
+            };
+
+            socket.on("login_response", handleLoginResponse);
+            return () => socket.off("login_response", handleLoginResponse);
+        }
+    }, [user]);
+
+    useEffect(() => {
+        const handleForcedLogout = () => {
+            toast.warning("You've been logged out from another device");
+            localStorage.clear();
+            navigate("/");
+        };
+        socket.on("forced_logout", handleForcedLogout);
+        return () => socket.off("forced_logout", handleForcedLogout);
+    }, [navigate]);
+    const handleApproval = (approved) => {
+        if (!loginRequest) return;
+
+        socket.emit("approve_login", {
+            loginId: loginRequest.loginId,
+            approved,
+            superAdminId: currentAdminId
+        }, (response) => {
+            if (response.success) {
+                console.log("Approval processed successfully");
+            } else {
+                console.error("Approval failed:", response.error);
+            }
+        });
+
+        setLoginRequest(null); // close modal
+    };
 
     // ✅ Fetch employees
     useEffect(() => {
@@ -144,6 +234,8 @@ function EmployeeDetails() {
                     onSave={handleSave}
                     onDelete={handleDelete}
                     initialData={selectedEmployee}
+                    nextCode={nextEmployeeCode}
+
                 />
             )}
 
@@ -178,6 +270,39 @@ function EmployeeDetails() {
                     </div>
                 </div>
             )}
+
+
+            {loginRequest && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+                    <div className="bg-white rounded-lg p-6 w-80">
+                        <h2 className="text-lg font-bold mb-4">Login Approval</h2>
+                        <div className="flex mb-4 flex-col ">
+                            <div className="mb-4">
+                                <img
+                                    src={loginRequest.avatar ? `${BACKEND_URL}${loginRequest.avatar}` : `${BACKEND_URL}/uploads/default-avatar.jpg`}
+                                    alt={loginRequest.user_name}
+                                    className="w-12 h-12 mr-4" style={{ borderRadius: '4px' }}
+                                />
+                            </div>
+                            <div>
+                                <div style={{ fontSize: '14px', display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                    <p>Employee Code</p>
+                                    <p className="text-[#0897FF] font-bold">{loginRequest.code || "N/A"}</p>
+                                </div>
+                                <div style={{ fontSize: '14px', display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                    <p>Employee Name</p>
+                                    <p className="text-[#0897FF] font-bold">{loginRequest.user_name}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex justify-end gap-4">
+                            <button className="px-4 py-2 bg-red-500 text-white rounded" onClick={() => handleApproval(false)}>Decline</button>
+                            <button className="px-4 py-2 bg-blue-600 text-white rounded" onClick={() => handleApproval(true)}>Accept</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </>
     )
 }

@@ -12,6 +12,7 @@ export default function CustomerCard({
   warranty,
   model,
   cost,
+  advance,
   received,
   delivery,
   type,
@@ -26,16 +27,16 @@ export default function CustomerCard({
   const formatDate = (dateString) => {
     if (!dateString) return "N/A"; // handle empty
 
-    // Handle dd/mm/yyyy format
-    const parts = dateString.split("/");
-    if (parts.length === 3) {
-      const [day, month, year] = parts;
+    // Handle ISO (yyyy-mm-dd) or JS Date-compatible
+    const isoParts = dateString.split("-");
+    if (isoParts.length === 3) {
+      const [year, month, day] = isoParts;
       return `${day.padStart(2, "0")}.${month.padStart(2, "0")}.${year}`;
     }
 
-    // If it's in ISO format or valid for Date()
+    // Fallback for Date()
     const date = new Date(dateString);
-    if (isNaN(date)) return "N/A"; // still invalid
+    if (isNaN(date)) return "N/A";
 
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -79,15 +80,18 @@ export default function CustomerCard({
         className={`custom-table-body grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 md:gap-4 text-sm ${user.user_type !== 1 ? "nocopy" : ""
           }`}
         onContextMenu={user.user_type !== 1 ? (e) => e.preventDefault() : undefined}
-      >        
-      <div className="break-words">Phone Number: <span>{phone}</span></div>
-        <div className="break-words">Device Type: <span>{device}</span></div>
-        <div className="break-words">Warranty: <span className="text-green-400">{warranty}</span></div>
-        <div className="break-words">Model: <span>{model}</span></div>
-        <div className="break-words">Cost: <span>{cost}</span></div>
-        <div className="break-words">Received Date: <span>{formatDate(received)}</span></div>
-        <div className="break-words">Delivery Date: <span>{formatDate(delivery)}</span></div>
-        <div className="break-words">Repair Type: <span>{type}</span></div>
+      >
+        
+        <div className="break-words">Phone Number: <span>{phone || "N/A"}</span></div>
+        <div className="break-words">Device Type: <span>{device || "N/A"}</span></div>
+        <div className="break-words">Warranty: <span className="text-green-400">{warranty || "N/A"}</span></div>
+        <div className="break-words">Model: <span>{model || "N/A"}</span></div>
+        <div className="break-words">Cost: <span>{cost != "null" ? "KD "+cost : "N/A"}</span></div>
+        <div className="break-words">Advance:<span>{advance != "null" ? "KD "+advance : "N/A"}</span></div>
+        <div className="break-words">Received Date: <span>{received ? formatDate(received) : "N/A"}</span></div>
+        <div className="break-words">Delivery Date: <span>{delivery ? formatDate(delivery) : "N/A"}</span></div>
+        <div className="break-words">Repair Type: <span>{type || "N/A"}</span></div>
+
       </div>
     </div>
   );

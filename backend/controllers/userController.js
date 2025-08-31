@@ -50,6 +50,17 @@ exports.getUsers = async (req, res) => {
   }
 };
 
+exports.allUsers = async (req, res) => {
+  try {
+    const users = await MainUser.findAll({
+      attributes: ['id', 'employee_code', 'user_name', 'image', 'created_date']
+    });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // ✅ Create new user
 exports.createUser = async (req, res) => {
   try {

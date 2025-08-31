@@ -7,6 +7,24 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function CustomerModal({ isOpen, onClose, onCustomerSaved, customer }) {
   const { user } = useContext(AuthContext);
+  const emptyForm = {
+    customer_name: "",
+    phone_number: "",
+    device_type: "",
+    warranty: "",
+    model: "",
+    repair_type: "",
+    received_date: "",
+    delivery_date: "",
+    cost: "",
+    advance: "",
+    invoice_number: "",
+  };
+
+  const handleCancel = () => {
+    setFormData(emptyForm);
+    onClose();
+  };
 
   const [deviceTypes, setDeviceTypes] = useState([]);
   const [loadingDeviceTypes, setLoadingDeviceTypes] = useState(true);
@@ -21,39 +39,32 @@ export default function CustomerModal({ isOpen, onClose, onCustomerSaved, custom
     received_date: "",
     delivery_date: "",
     cost: "",
+    advance: "",
     invoice_number: "",
   });
 
   // Populate form when editing
   useEffect(() => {
-    if (customer) {
-      setFormData({
-        customer_name: customer.customer_name || "",
-        phone_number: customer.phone_number || "",
-        device_type: customer.device_type || "",
-        warranty: customer.warranty || "",
-        model: customer.model || "",
-        repair_type: customer.repair_type || "",
-        received_date: customer.received_date ? customer.received_date.split("T")[0] : "",
-        delivery_date: customer.delivery_date ? customer.delivery_date.split("T")[0] : "",
-        cost: customer.cost || "",
-        invoice_number: customer.invoice_number || "",
-      });
-    } else {
-      setFormData({
-        customer_name: "",
-        phone_number: "",
-        device_type: "",
-        warranty: "",
-        model: "",
-        repair_type: "",
-        received_date: "",
-        delivery_date: "",
-        cost: "",
-        invoice_number: "",
-      });
+    if (isOpen) {
+      if (customer) {
+        setFormData({
+          customer_name: customer.customer_name || "",
+          phone_number: customer.phone_number || "",
+          device_type: customer.device_type || "",
+          warranty: customer.warranty || "",
+          model: customer.model || "",
+          repair_type: customer.repair_type || "",
+          received_date: customer.received_date ? customer.received_date.split("T")[0] : "",
+          delivery_date: customer.delivery_date ? customer.delivery_date.split("T")[0] : "",
+          cost: customer.cost || "",
+          advance: customer.advance || "",
+          invoice_number: customer.invoice_number || "",
+        });
+      } else {
+        setFormData(emptyForm);
+      }
     }
-  }, [customer]);
+  }, [isOpen, customer]);
 
   // Load device types
   useEffect(() => {
@@ -102,9 +113,14 @@ export default function CustomerModal({ isOpen, onClose, onCustomerSaved, custom
         toast.success("Customer added successfully!");
       }
       if (onCustomerSaved) onCustomerSaved();
+      setFormData(emptyForm);
       onClose();
     } catch (error) {
-      toast.error("Failed to save customer");
+      if (error.response && error.response.data && error.response.data.message) {
+        toast.error(error.response.data.message);  // show backend message
+      } else {
+        toast.error("Failed to save customer");     // fallback message
+      }
       console.error(error);
     }
   };
@@ -112,11 +128,11 @@ export default function CustomerModal({ isOpen, onClose, onCustomerSaved, custom
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 p-2 md:p-0">
       <div className="bg-white rounded-lg shadow-lg w-full h-full md:h-auto max-w-[900px] md:mx-0 overflow-auto relative">
-        
+
         {/* Close button */}
         <button
-          className="absolute top-2 right-2 text-gray-600 text-2xl font-bold md:hidden"
-          onClick={onClose}
+          className="absolute top-2 right-2 text-gray-600 text-2xl font-bold"
+          onClick={handleCancel}
         >
           ×
         </button>
@@ -225,6 +241,15 @@ export default function CustomerModal({ isOpen, onClose, onCustomerSaved, custom
                 className="border p-2 rounded"
               />
             </div>
+            <div className="flex flex-col">
+              <label>Invoice Number</label>
+              <input
+                name="invoice_number"
+                value={formData.invoice_number}
+                onChange={handleChange}
+                className="border p-2 rounded"
+              />
+            </div>
 
             <div className="flex flex-col">
               <label>Cost</label>
@@ -237,22 +262,25 @@ export default function CustomerModal({ isOpen, onClose, onCustomerSaved, custom
                 className="border p-2 rounded"
               />
             </div>
-
             <div className="flex flex-col">
-              <label>Invoice Number</label>
+              <label>Advance</label>
               <input
-                name="invoice_number"
-                value={formData.invoice_number}
+                name="advance"
+                type="number"
+                step="0.01"
+                value={formData.advance}
                 onChange={handleChange}
                 className="border p-2 rounded"
               />
             </div>
+
+
           </div>
 
           {/* Buttons */}
           <div className="flex justify-end gap-4 mt-4 md:mt-6">
             <button
-              onClick={onClose}
+              onClick={handleCancel}
               className="px-6 py-2 border rounded-lg"
               type="button"
             >

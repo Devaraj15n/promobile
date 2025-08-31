@@ -2,11 +2,21 @@ const express = require("express");
 const router = express.Router();
 // const MainCustomer = require("../models/MainCustomer");
 const { MainCustomer, MainUser, MasterDeviceType } = require("../models/associations");
+const { Op } = require("sequelize");
 
 
 // Create Customer
 router.post("/", async (req, res) => {
   try {
+    const { invoice_number } = req.body;
+    const existing = await MainCustomer.findOne({
+      where: { invoice_number, is_active: 1 }
+    });
+
+    if (existing) {
+      return res.status(400).json({ message: "Invoice Number already exists" });
+    }
+
     const customer = await MainCustomer.create(req.body);
     res.json(customer);
   } catch (error) {
@@ -51,9 +61,28 @@ router.get("/:id", async (req, res) => {
 // ✅ Update Customer
 router.put("/:id", async (req, res) => {
   try {
+
+    const { invoice_number } = req.body;
+
+    if (invoice_number) {
+      const existing = await MainCustomer.findOne({
+        where: {
+          invoice_number,
+          id: { [Op.ne]: req.params.id },
+          is_active: 1,
+        },
+      });
+      if (existing) {
+        return res.status(400).json({ message: "Invoice number already exists" });
+      }
+    }
+
+
+
     const [updated] = await MainCustomer.update(req.body, {
       where: { id: req.params.id, is_active: 1 },
     });
+
     if (!updated) {
       return res.status(404).json({ message: "Customer not found" });
     }

@@ -62,6 +62,8 @@ export default function SidebarFilters({ onSearch, onDateChange, onDeviceChange,
                     onChange={handleDateChange}
                     isClearable={true}
                     className="w-full border rounded-lg p-2 text-sm"
+                    dateFormat="dd/MM/yyyy"
+                    // popperPlacement="right-start" 
                 />
             </div>
 

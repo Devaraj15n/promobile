@@ -10,12 +10,12 @@ export default function Sidebar({ isOpen, onClose, ...props }) {
     fixed top-0 left-0 h-screen w-full bg-white transition-transform transform
     ${isOpen ? "translate-x-0" : "-translate-x-full"}
     md:relative md:w-64 md:translate-x-0 md:border-r
-    overflow-y-auto
+    overflow-auto
   `}
         style={{
           height: "100%",
           overflowY: "auto",
-          overflowX: "hidden",
+          overflowX: "auto",
         }}
       >
         <SidebarFilters {...props} />

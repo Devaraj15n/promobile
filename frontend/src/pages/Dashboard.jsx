@@ -42,7 +42,6 @@ export default function Dashboard() {
             return;
         }
 
-        console.log("Export triggered");
 
         // 1. Map data to neat order and readable headers
         const exportData = filteredCustomers.map((c, index) => ({
@@ -53,7 +52,8 @@ export default function Dashboard() {
             "Model": c.model,
             "Warranty": c.warranty,
             "Repair Type": c.repair_type,
-            "Cost (INR)": c.cost,
+            "Cost (KD)": c.cost,
+            "Advance (KD)": c.advance,
             "Invoice Number": c.invoice_number,
             "Received Date": new Date(c.received_date).toLocaleDateString(),
             "Delivery Date": new Date(c.delivery_date).toLocaleDateString(),
@@ -82,7 +82,8 @@ export default function Dashboard() {
             { wch: 15 },  // Model
             { wch: 10 },  // Warranty
             { wch: 15 },  // Repair Type
-            { wch: 12 },  // Cost (INR)
+            { wch: 12 },  // Cost (KD)
+            { wch: 12 },  // Advance (KD)
             { wch: 15 },  // Invoice Number
             { wch: 15 },  // Received Date
             { wch: 15 },  // Delivery Date
@@ -150,7 +151,6 @@ export default function Dashboard() {
 
 
     const handleInfoCustomer = (customer) => {
-        console.log(customer);
         setSelectedCustomer(customer);
         setIsInfoModalOpen(true);
     };
@@ -214,10 +214,6 @@ export default function Dashboard() {
         try {
             const res = await axios.get(`${BACKEND_URL}/api/customers`);
             setCustomers(res.data);
-            // console.log(res.data);
-            res.data.forEach(element => {
-                console.log(element.deviceType.name);
-            });
         } catch (err) {
             console.error("Failed to fetch customers:", err);
         } finally {
@@ -267,7 +263,6 @@ export default function Dashboard() {
     useEffect(() => {
         if (currentAdminId) {
             const handleLoginRequest = (request) => {
-                console.log(request);
                 // Save request to state to show modal
                 setLoginRequest(request);
             };
@@ -363,7 +358,8 @@ export default function Dashboard() {
                                 device={c.deviceType.name}
                                 warranty={c.warranty}
                                 model={c.model}
-                                cost={`INR ${c.cost}`}
+                                cost={`${c.cost}`}
+                                advance={`${c.advance}`}
                                 received={new Date(c.received_date).toLocaleDateString()}
                                 delivery={new Date(c.delivery_date).toLocaleDateString()}
                                 type={c.repair_type}

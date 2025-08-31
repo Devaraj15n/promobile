@@ -15,7 +15,7 @@ const socket = io(BACKEND_URL, {
 
 function Login() {
   const { login } = useContext(AuthContext);
-  const [userName, setUserName] = useState("");
+  const [employeeCode, setEmployeeCode] = useState("");  // ✅ changed
   const [password, setPassword] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
@@ -33,8 +33,8 @@ function Login() {
   }, [navigate]);
 
   const handleLogin = async () => {
-    if (!userName.trim() || !password.trim()) {
-      toast.error("Username and Password are required");
+    if (!employeeCode.trim() || !password.trim()) {
+      toast.error("Employee code and Password are required");
       return;
     }
 
@@ -42,7 +42,7 @@ function Login() {
 
     try {
       const res = await axios.post(`${BACKEND_URL}/api/auth/login`, {
-        user_name: userName,
+        employee_code: employeeCode,   // ✅ send employee_code
         password,
       });
 
@@ -56,11 +56,13 @@ function Login() {
           return;
         }
 
-        await axios.post(`${BACKEND_URL}/api/auth/force-logout`, { user_name: userName });
+        await axios.post(`${BACKEND_URL}/api/auth/force-logout`, { 
+          employee_code: employeeCode   // ✅ send employee_code
+        });
         return handleLogin(); // Retry login after force logout
       }
 
-      // Successful login for super admin or auto-approved
+      // Successful login
       if (res.data.token) {
         login(res.data.user, res.data.token);
         localStorage.setItem("current_user_id", res.data.user.id);
@@ -140,16 +142,16 @@ function Login() {
             Sign in to view and manage your customer data.
           </p>
 
-          {/* Username */}
+          {/* Employee Code */}
           <div className="mb-4">
             <div className="relative">
               <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="User Name"
+                placeholder="Employee code"
                 className="login-input-field"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
+                value={employeeCode}
+                onChange={(e) => setEmployeeCode(e.target.value)}
               />
             </div>
           </div>

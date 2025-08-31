@@ -6,9 +6,9 @@ const { getIo, getUserSockets } = require("../socket");
 const activeSessions = {}; // Track { userId: [sessionTokens] }
 
 exports.login = async (req, res) => {
-  const { user_name, password } = req.body;
+  const { employee_code, password } = req.body;
 
-  const user = await MainUser.findOne({ where: { user_name, is_active: 1 } });
+  const user = await MainUser.findOne({ where: { employee_code, is_active: 1 } });
   if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
   const match = await bcrypt.compare(password, user.password);
