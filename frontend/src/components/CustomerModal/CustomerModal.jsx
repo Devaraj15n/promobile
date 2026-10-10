@@ -111,6 +111,7 @@ export default function CustomerModal({ isOpen, onClose, onCustomerSaved, custom
           created_by: user.id,
           created_date: new Date(),
           is_active: 1,
+          is_delivered: 0,
         });
         toast.success("Customer added successfully!");
       }

@@ -7,6 +7,7 @@ import { io } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import CustomerModal from '../components/CustomerModal/CustomerModal'
+import DeliveryModal from '../components/CustomerModal/DeliveryModal'
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { RiDeleteBin5Fill } from "react-icons/ri";
@@ -31,10 +32,11 @@ export default function Dashboard() {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
     const [search, setSearch] = useState("");
-    const today = new Date().toISOString().split("T")[0];
-    const [selectedDate, setSelectedDate] = useState({ from: today, to: today });
+    const [selectedDate, setSelectedDate] = useState({ from: null, to: null });
     const [selectedDevices, setSelectedDevices] = useState([]);
+    const [deliveryFilter, setDeliveryFilter] = useState("all");
     const [deleteCustomerId, setDeleteCustomerId] = useState(null);
+    const [deliveringCustomer, setDeliveringCustomer] = useState(null);
 
 
     const handleExport = () => {
@@ -58,6 +60,7 @@ export default function Dashboard() {
             "Invoice Number": c.invoice_number,
             "Received Date": new Date(c.received_date).toLocaleDateString(),
             "Delivery Date": new Date(c.delivery_date).toLocaleDateString(),
+            "Status": Number(c.is_delivered) === 1 ? "Delivered" : "Not delivered",
             "Created By": c.createdUser?.user_name || "N/A",
             "Employee Code": c.createdUser?.employee_code || "N/A",
             "Created Date": new Date(c.created_date).toLocaleString("en-US", {
@@ -88,6 +91,7 @@ export default function Dashboard() {
             { wch: 15 },  // Invoice Number
             { wch: 15 },  // Received Date
             { wch: 15 },  // Delivery Date
+            { wch: 16 },  // Status
             { wch: 20 },  // Created By
             { wch: 12 },  // Employee Code
             { wch: 25 }   // Created Date
@@ -126,6 +130,7 @@ export default function Dashboard() {
         setSearch("");
         setSelectedDate({ from: null, to: null });
         setSelectedDevices([]);
+        setDeliveryFilter("all");
     };
 
     // Handle device filter toggle
@@ -135,14 +140,54 @@ export default function Dashboard() {
         );
     };
 
+    const formatSearchDate = (dateString) => {
+        if (!dateString) return "n/a";
+
+        const isoParts = String(dateString).split("-");
+        if (isoParts.length === 3 && isoParts[0].length === 4) {
+            const [year, month, day] = isoParts;
+            return `${day.padStart(2, "0")}.${month.padStart(2, "0")}.${year}`;
+        }
+
+        const date = new Date(dateString);
+        if (isNaN(date)) return "n/a";
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = date.getFullYear();
+        return `${day}.${month}.${year}`;
+    };
+
+    const formatMoney = (value) =>
+        value != null && value !== "null" ? `KD ${Number(value).toFixed(2)}` : "N/A";
+
     const filteredCustomers = customers.filter((c) => {
         const start = new Date(selectedDate.from);
         const end = new Date(selectedDate.to);
         end.setHours(23, 59, 59, 999);
 
-        const matchSearch =
-            c.customer_name.toLowerCase().includes(search.toLowerCase()) ||
-            c.phone_number.includes(search);
+        const q = search.trim().toLowerCase();
+        const searchable = [
+            c.customer_name,
+            c.phone_number,
+            c.invoice_number,
+            c.deviceType?.name,
+            c.warranty || "N/A",
+            c.model,
+            c.repair_type,
+            String(c.cost ?? ""),
+            formatMoney(c.cost),
+            String(c.advance ?? ""),
+            formatMoney(c.advance),
+            c.received_date,
+            formatSearchDate(c.received_date),
+            c.delivery_date,
+            formatSearchDate(c.delivery_date),
+            Number(c.is_delivered) === 1 ? "delivered" : "not delivered",
+        ]
+            .map((v) => String(v ?? "").toLowerCase())
+            .join(" ");
+
+        const matchSearch = !q || searchable.includes(q);
 
         const matchDate =
             selectedDate.from && selectedDate.to
@@ -152,7 +197,15 @@ export default function Dashboard() {
         const matchDevice =
             selectedDevices.length > 0 ? selectedDevices.includes(c.deviceType.name) : true;
 
-        return matchSearch && matchDate && matchDevice;
+        const isDelivered = Number(c.is_delivered) === 1;
+        const matchDelivery =
+            deliveryFilter === "all"
+                ? true
+                : deliveryFilter === "delivered"
+                    ? isDelivered
+                    : !isDelivered;
+
+        return matchSearch && matchDate && matchDevice && matchDelivery;
     });
 
 
@@ -183,6 +236,24 @@ export default function Dashboard() {
     const handleEditCustomer = (customer) => {
         setEditingCustomer(customer);
         setIsCustomerModalOpen(true);
+    };
+
+    const handleDeliverCustomer = async ({ cost, delivery_date }) => {
+        if (!deliveringCustomer) return;
+
+        try {
+            await axios.put(`${BACKEND_URL}/api/customers/${deliveringCustomer.id}/deliver`, {
+                cost,
+                delivery_date,
+                modified_by: user?.id,
+            });
+            toast.success("Customer marked as delivered");
+            setDeliveringCustomer(null);
+            fetchCustomers();
+        } catch (err) {
+            console.error("Failed to deliver:", err);
+            toast.error(err.response?.data?.message || "Failed to mark as delivered");
+        }
     };
 
 
@@ -336,6 +407,7 @@ export default function Dashboard() {
                 onSearch={setSearch}
                 onDateChange={setSelectedDate}
                 onDeviceChange={handleDeviceChange}
+                onDeliveryStatusChange={setDeliveryFilter}
                 onClear={handleClearFilters}
             />
 
@@ -345,12 +417,19 @@ export default function Dashboard() {
                 onCustomerSaved={fetchCustomers}
                 customer={editingCustomer}
             />
+            <DeliveryModal
+                isOpen={!!deliveringCustomer}
+                customer={deliveringCustomer}
+                onClose={() => setDeliveringCustomer(null)}
+                onConfirm={handleDeliverCustomer}
+            />
             {/* <div className="flex overflow-y-auto" style={{ height: "calc(100vh - 20vh)" }}> */}
             <div className="flex flex-1 overflow-hidden p-4">
                 <Sidebar
                     onSearch={setSearch}
                     onDateChange={setSelectedDate}
                     onDeviceChange={handleDeviceChange}
+                    onDeliveryStatusChange={setDeliveryFilter}
                     onClear={handleClearFilters}
                 />
                 <div className="overflow-scroll lg:overflow-auto w-full py-[20px] px-[20px]">
@@ -370,9 +449,11 @@ export default function Dashboard() {
                                 delivery={new Date(c.delivery_date).toLocaleDateString()}
                                 type={c.repair_type}
                                 invoice={c.invoice_number}
+                                isDelivered={Number(c.is_delivered) === 1}
                                 onInfo={() => handleInfoCustomer(c)}
                                 onEdit={() => handleEditCustomer(c)}
                                 onDelete={() => setDeleteCustomerId(c.id)}
+                                onDeliver={() => setDeliveringCustomer(c)}
                             />
                         ))) : (
                         <div className="text-center text-gray-500 p-10 border rounded-lg bg-gray-100">

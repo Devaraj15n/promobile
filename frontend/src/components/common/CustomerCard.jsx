@@ -17,9 +17,11 @@ export default function CustomerCard({
   delivery,
   type,
   invoice,
+  isDelivered,
   onInfo,
   onEdit,
   onDelete,
+  onDeliver,
 }) {
   const { user } = useContext(AuthContext);
   if (!user) return null; // or return a placeholder
@@ -46,7 +48,7 @@ export default function CustomerCard({
 
 
   return (
-    <div className="text-white rounded-lg mb-5 custom-table-header-div">
+    <div className={`text-white rounded-lg mb-5 custom-table-header-div ${isDelivered ? "" : "pending"}`}>
       {/* Header */}
       <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center custom-table-header mb-3">
         <h3 className="font-bold break-words">{name}</h3>
@@ -54,6 +56,18 @@ export default function CustomerCard({
           <div className="text-xs invoice-number mb-1 md:mb-0 break-words">
             Invoice Number: <strong>{invoice}</strong>
           </div>
+
+          {isDelivered ? (
+            <span className="delivered-badge">Delivered</span>
+          ) : (
+            <button
+              type="button"
+              className="delivery-btn"
+              onClick={onDeliver}
+            >
+              Delivery
+            </button>
+          )}
 
           {(user.user_type && user.user_type == 1 ?
             <div className="flex gap-2 flex-wrap">

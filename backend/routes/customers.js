@@ -17,7 +17,7 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "Invoice Number already exists" });
     }
 
-    const customer = await MainCustomer.create(req.body);
+    const customer = await MainCustomer.create({ ...req.body, is_delivered: 0 });
     res.json(customer);
   } catch (error) {
     console.error(error);
@@ -41,6 +41,42 @@ router.get("/", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to fetch customers" });
+  }
+});
+
+// Mark customer as delivered
+router.put("/:id/deliver", async (req, res) => {
+  try {
+    const { cost, delivery_date, modified_by } = req.body;
+
+    if (cost === undefined || cost === null || cost === "" || !delivery_date) {
+      return res.status(400).json({ message: "Final price and delivery date are required" });
+    }
+
+    const customer = await MainCustomer.findOne({
+      where: { id: req.params.id, is_active: 1 },
+    });
+
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+
+    if (Number(customer.is_delivered) === 1) {
+      return res.status(400).json({ message: "Customer already delivered" });
+    }
+
+    await customer.update({
+      cost,
+      delivery_date,
+      is_delivered: 1,
+      modified_by,
+      modified_date: new Date(),
+    });
+
+    res.json(customer);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to mark customer as delivered" });
   }
 });
 

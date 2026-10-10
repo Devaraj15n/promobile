@@ -52,6 +52,46 @@ body {
   border: 1px solid #AEAEAE;
 }
 
+.custom-table-header-div.pending {
+  border-color: #E6B800;
+  background-color: #FFF8E1;
+}
+
+.custom-table-header-div.pending .custom-table-header {
+  background-color: #E6B800;
+  color: #163057;
+}
+
+.custom-table-header-div.pending .custom-table-header-icon {
+  border-color: #163057;
+  color: #163057;
+}
+
+.delivery-btn {
+  background-color: #ffffff;
+  color: #163057;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 6px;
+  padding: 6px 12px;
+  border: none;
+  cursor: pointer;
+}
+
+.custom-table-header-div.pending .delivery-btn {
+  background-color: #163057;
+  color: #ffffff;
+}
+
+.delivered-badge {
+  background-color: #16a34a;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 6px;
+  padding: 6px 12px;
+}
+
 .custom-table-header-icon {
   border: 1px solid #FFFFFF;
   border-radius: 4px;
