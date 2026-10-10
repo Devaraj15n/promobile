@@ -5,23 +5,24 @@ import { AuthContext } from "../../context/AuthContext";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
+const getEmptyForm = (today) => ({
+  customer_name: "",
+  phone_number: "",
+  device_type: "",
+  warranty: "",
+  model: "",
+  repair_type: "",
+  received_date: today,
+  delivery_date: "",
+  cost: "",
+  advance: "",
+  invoice_number: "",
+});
+
 export default function CustomerModal({ isOpen, onClose, onCustomerSaved, customer }) {
   const { user } = useContext(AuthContext);
   const today = new Date().toISOString().split("T")[0];
-
-  const emptyForm = {
-    customer_name: "",
-    phone_number: "",
-    device_type: "",
-    warranty: "",
-    model: "",
-    repair_type: "",
-    received_date: today,
-    delivery_date: "",
-    cost: "",
-    advance: "",
-    invoice_number: "",
-  };
+  const emptyForm = getEmptyForm(today);
 
   const handleCancel = () => {
     setFormData(emptyForm);
@@ -31,19 +32,7 @@ export default function CustomerModal({ isOpen, onClose, onCustomerSaved, custom
   const [deviceTypes, setDeviceTypes] = useState([]);
   const [loadingDeviceTypes, setLoadingDeviceTypes] = useState(true);
 
-  const [formData, setFormData] = useState({
-    customer_name: "",
-    phone_number: "",
-    device_type: "",
-    warranty: "",
-    model: "",
-    repair_type: "",
-    received_date: today,
-    delivery_date: "",
-    cost: "",
-    advance: "",
-    invoice_number: "",
-  });
+  const [formData, setFormData] = useState(() => getEmptyForm(today));
 
   // Populate form when editing
   useEffect(() => {
@@ -63,10 +52,10 @@ export default function CustomerModal({ isOpen, onClose, onCustomerSaved, custom
           invoice_number: customer.invoice_number || "",
         });
       } else {
-        setFormData(emptyForm);
+        setFormData(getEmptyForm(today));
       }
     }
-  }, [isOpen, customer]);
+  }, [isOpen, customer, today]);
 
   // Load device types
   useEffect(() => {

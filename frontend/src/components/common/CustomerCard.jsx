@@ -69,7 +69,7 @@ export default function CustomerCard({
             </button>
           )}
 
-          {(user.user_type && user.user_type == 1 ?
+          {(user.user_type && user.user_type === 1 ?
             <div className="flex gap-2 flex-wrap">
               <div className="custom-table-header-icon" onClick={onInfo}>
                 <FiInfo />
@@ -100,8 +100,8 @@ export default function CustomerCard({
         <div className="break-words">Device Type: <span>{device || "N/A"}</span></div>
         <div className="break-words">Warranty: <span className="text-green-400">{warranty || "N/A"}</span></div>
         <div className="break-words">Model: <span>{model || "N/A"}</span></div>
-        <div className="break-words">Cost: <span>{cost != "null" ? "KD "+cost : "N/A"}</span></div>
-        <div className="break-words">Advance:<span>{advance != "null" ? "KD "+advance : "N/A"}</span></div>
+        <div className="break-words">Cost: <span>{cost !== "null" ? "KD "+cost : "N/A"}</span></div>
+        <div className="break-words">Advance:<span>{advance !== "null" ? "KD "+advance : "N/A"}</span></div>
         <div className="break-words">Received Date: <span>{received ? formatDate(received) : "N/A"}</span></div>
         <div className="break-words">Delivery Date: <span>{delivery ? formatDate(delivery) : "N/A"}</span></div>
         <div className="break-words">Repair Type: <span>{type || "N/A"}</span></div>
