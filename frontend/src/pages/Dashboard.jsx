@@ -31,7 +31,8 @@ export default function Dashboard() {
     const [editingCustomer, setEditingCustomer] = useState(null);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
-    const [search, setSearch] = useState("");
+    const [phoneSearch, setPhoneSearch] = useState("");
+    const [invoiceSearch, setInvoiceSearch] = useState("");
     const [selectedDate, setSelectedDate] = useState({ from: null, to: null });
     const [selectedDevices, setSelectedDevices] = useState([]);
     const [deliveryFilter, setDeliveryFilter] = useState("all");
@@ -127,7 +128,8 @@ export default function Dashboard() {
 
     // Reset filters
     const handleClearFilters = () => {
-        setSearch("");
+        setPhoneSearch("");
+        setInvoiceSearch("");
         setSelectedDate({ from: null, to: null });
         setSelectedDevices([]);
         setDeliveryFilter("all");
@@ -140,54 +142,19 @@ export default function Dashboard() {
         );
     };
 
-    const formatSearchDate = (dateString) => {
-        if (!dateString) return "n/a";
-
-        const isoParts = String(dateString).split("-");
-        if (isoParts.length === 3 && isoParts[0].length === 4) {
-            const [year, month, day] = isoParts;
-            return `${day.padStart(2, "0")}.${month.padStart(2, "0")}.${year}`;
-        }
-
-        const date = new Date(dateString);
-        if (isNaN(date)) return "n/a";
-        const day = String(date.getDate()).padStart(2, "0");
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const year = date.getFullYear();
-        return `${day}.${month}.${year}`;
-    };
-
-    const formatMoney = (value) =>
-        value != null && value !== "null" ? `KD ${Number(value).toFixed(2)}` : "N/A";
-
     const filteredCustomers = customers.filter((c) => {
         const start = new Date(selectedDate.from);
         const end = new Date(selectedDate.to);
         end.setHours(23, 59, 59, 999);
 
-        const q = search.trim().toLowerCase();
-        const searchable = [
-            c.customer_name,
-            c.phone_number,
-            c.invoice_number,
-            c.deviceType?.name,
-            c.warranty || "N/A",
-            c.model,
-            c.repair_type,
-            String(c.cost ?? ""),
-            formatMoney(c.cost),
-            String(c.advance ?? ""),
-            formatMoney(c.advance),
-            c.received_date,
-            formatSearchDate(c.received_date),
-            c.delivery_date,
-            formatSearchDate(c.delivery_date),
-            Number(c.is_delivered) === 1 ? "delivered" : "not delivered",
-        ]
-            .map((v) => String(v ?? "").toLowerCase())
-            .join(" ");
+        const phoneQ = phoneSearch.trim().toLowerCase();
+        const invoiceQ = invoiceSearch.trim().toLowerCase();
 
-        const matchSearch = !q || searchable.includes(q);
+        const matchPhone =
+            !phoneQ || String(c.phone_number ?? "").toLowerCase().includes(phoneQ);
+
+        const matchInvoice =
+            !invoiceQ || String(c.invoice_number ?? "").toLowerCase().includes(invoiceQ);
 
         const matchDate =
             selectedDate.from && selectedDate.to
@@ -205,7 +172,7 @@ export default function Dashboard() {
                     ? isDelivered
                     : !isDelivered;
 
-        return matchSearch && matchDate && matchDevice && matchDelivery;
+        return matchPhone && matchInvoice && matchDate && matchDevice && matchDelivery;
     });
 
 
@@ -404,7 +371,8 @@ export default function Dashboard() {
                 onAddCustomer={handleAddCustomer}
                 onEmployeeClick={() => navigate('/employee')}
                 onExport={handleExport}
-                onSearch={setSearch}
+                onPhoneSearch={setPhoneSearch}
+                onInvoiceSearch={setInvoiceSearch}
                 onDateChange={setSelectedDate}
                 onDeviceChange={handleDeviceChange}
                 onDeliveryStatusChange={setDeliveryFilter}
@@ -426,7 +394,8 @@ export default function Dashboard() {
             {/* <div className="flex overflow-y-auto" style={{ height: "calc(100vh - 20vh)" }}> */}
             <div className="flex flex-1 overflow-hidden p-4">
                 <Sidebar
-                    onSearch={setSearch}
+                    onPhoneSearch={setPhoneSearch}
+                    onInvoiceSearch={setInvoiceSearch}
                     onDateChange={setSelectedDate}
                     onDeviceChange={handleDeviceChange}
                     onDeliveryStatusChange={setDeliveryFilter}

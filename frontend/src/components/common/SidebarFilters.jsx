@@ -5,9 +5,10 @@ import axios from "axios";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-export default function SidebarFilters({ onSearch, onDateChange, onDeviceChange, onDeliveryStatusChange, onClear }) {
+export default function SidebarFilters({ onPhoneSearch, onInvoiceSearch, onDateChange, onDeviceChange, onDeliveryStatusChange, onClear }) {
     const [masterDeviceTypes, setMasterDeviceTypes] = useState([]);
-    const [searchValue, setSearchValue] = useState("");
+    const [phoneSearch, setPhoneSearch] = useState("");
+    const [invoiceSearch, setInvoiceSearch] = useState("");
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [selectedDevices, setSelectedDevices] = useState([]);
@@ -25,9 +26,14 @@ export default function SidebarFilters({ onSearch, onDateChange, onDeviceChange,
         fetchDeviceTypes();
     }, []);
 
-    const handleSearchChange = (value) => {
-        setSearchValue(value);
-        onSearch(value);
+    const handlePhoneSearchChange = (value) => {
+        setPhoneSearch(value);
+        if (onPhoneSearch) onPhoneSearch(value);
+    };
+
+    const handleInvoiceSearchChange = (value) => {
+        setInvoiceSearch(value);
+        if (onInvoiceSearch) onInvoiceSearch(value);
     };
 
     const handleDateChange = (dates) => {
@@ -54,7 +60,8 @@ export default function SidebarFilters({ onSearch, onDateChange, onDeviceChange,
     };
 
     const handleClear = () => {
-        setSearchValue("");
+        setPhoneSearch("");
+        setInvoiceSearch("");
         setStartDate(null);
         setEndDate(null);
         setSelectedDevices([]);
@@ -69,10 +76,17 @@ export default function SidebarFilters({ onSearch, onDateChange, onDeviceChange,
                 <h3 className="mb-2">SEARCH</h3>
                 <input
                     type="text"
-                    placeholder="Search..."
+                    placeholder="Search by phone number"
+                    className="w-full border rounded-lg p-2 text-sm mb-2"
+                    value={phoneSearch}
+                    onChange={(e) => handlePhoneSearchChange(e.target.value)}
+                />
+                <input
+                    type="text"
+                    placeholder="Search by invoice number"
                     className="w-full border rounded-lg p-2 text-sm"
-                    value={searchValue}
-                    onChange={(e) => handleSearchChange(e.target.value)}
+                    value={invoiceSearch}
+                    onChange={(e) => handleInvoiceSearchChange(e.target.value)}
                 />
             </div>
 
